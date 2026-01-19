@@ -69,7 +69,7 @@ Airflow orchestrates execution and ensures transforms complete before Athena par
 
 ---
 
-##Tables Produced
+## Tables Produced
 
 The pipeline produces a set of cleaned and curated datasets stored as partitioned Parquet files in Amazon S3 and exposed as external tables in Athena.
 
@@ -128,3 +128,41 @@ Canonical job seniority levels.
 
 curated/company / curated/company_w_unknown
 Canonical company dimension and a variant preserving the company name set on the job posting.
+
+Notes
+
+All tables are partitioned by run_date unless otherwise noted.
+
+Curated tables are rebuilt per partition to support safe idempotent reruns.
+
+Athena partitions are added after successful Parquet writes to make data immediately queryable.
+
+
+---
+
+## How to Run
+
+**Prerequisties**
+- Python 3.9+
+- Apache Airflow
+- AWS account with access to S3 and Athena
+- Local copy of the LinkedIn job postings CSV dataset
+
+### Environment Variables
+The pipeline uses environment variables for environment-specific configuration.  
+See `.env.example` for a complete list.
+
+Required variables include:
+- `BUCKET` – S3 bucket used for the data lake
+- `RAW_ROOT_PREFIX` – S3 prefix for raw datasets
+- `CLEAN_ROOT_PREFIX` – S3 prefix for cleaned datasets
+- `CURATED_ROOT_PREFIX` – S3 prefix for curated datasets
+- `AWS_REGION` – AWS region for Athena queries
+- `ATHENA_WORKGROUP` – Athena workgroup name
+- `ATHENA_RESULTS_S3` – S3 location for Athena query results
+
+### Running the Pipeline
+1. Start the Airflow scheduler and webserver.
+2. Enable the `linkedin_etl_pipeline` DAG.
+3. Trigger the DAG manually for a chosen execution date.
+4. After completion, curated datasets will be available in S3 and queryable via Athena.
