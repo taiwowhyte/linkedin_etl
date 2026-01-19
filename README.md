@@ -34,42 +34,95 @@ The goal of this project was to gain hands-on experience designing a complete, p
 
 ---
 
-
 ## Pipeline Architecture
 
-            +----------------------+
-            |   Kaggle CSV files   |
-            |   (local download)   |
-            +----------+-----------+
-                       |
-                       v
-        +-----------------------------------+
-        | RAW LAYER (S3, Parquet)           |
-        | s3://.../raw/run_date=YYYY-MM-DD/ |
-        +------------------+----------------+
-                           |
-                           v
-        +--------------------------------------+
-        | CLEANED LAYER (S3, Parquet)           |
-        | - text normalisation                  |
-        | - placeholder -> NULL standardisation |
-        | s3://.../cleaned/<table>/run_date=... |
-        +------------------+-------------------+
-                           |
-                           v
-        +--------------------------------------+
-        | CURATED LAYER (S3, Parquet)           |
-        | - dedup using natural keys            |
-        | - validation checks                   |
-        | - idempotent reruns (partition rebuild)|
-        | s3://.../curated/<table>/run_date=... |
-        +------------------+-------------------+
-                           |
-                           v
-        +--------------------------------------+
-        | ATHENA (SQL)                          |
-        | - CREATE EXTERNAL TABLE               |
-        | - ALTER TABLE ADD PARTITION           |
-        +--------------------------------------+
+Raw CSV files (Kaggle download, local filesystem)
+        ↓
+S3 Raw Layer (Parquet, run_date partitioned)
+        ↓
+S3 Cleaned Layer
+  - text normalisation
+  - placeholder → NULL standardisation
+        ↓
+S3 Curated Layer
+  - natural key deduplication
+  - validation (schema, nulls, varchar limits)
+  - idempotent reruns per run_date
+        ↓
+Athena External Tables
+  - CREATE EXTERNAL TABLE
+  - ADD PARTITION (run_date)
 
 Orchestrated by: Apache Airflow
+
+
+Key design notes:
+
+The pipeline follows a layered data lake design (raw → cleaned → curated).
+
+All datasets are partitioned by run_date to support reproducibility and efficient querying.
+
+Curated outputs are rebuilt per partition to allow safe idempotent reruns.
+
+Airflow orchestrates execution and ensures transforms complete before Athena partitions are added.
+
+
+---
+
+Tables Produced
+
+The pipeline produces a set of cleaned and curated datasets stored as partitioned Parquet files in Amazon S3 and exposed as external tables in Athena.
+
+Raw Layer
+
+raw/job_postings
+Raw ingestion of CSV data converted to Parquet and partitioned by run_date.
+Acts as the immutable landing layer for downstream transforms.
+
+Cleaned Layer
+
+cleaned/job_postings_staging
+Normalised job posting records with standardised text fields and basic cleaning applied.
+
+cleaned/job_postings_skills_staging
+Exploded job skills (one skill per row per job) for easier downstream deduplication.
+
+cleaned/search_context
+Standardised text fields used for grouping and search-based analytics.
+
+cleaned/job_title_staging
+Cleaned job titles with canonicalisation logic applied.
+
+cleaned/location
+Standardised job locations with consistent handling of unknown values.
+
+cleaned/company / cleaned/company_w_unknown
+Cleaned company names, including a variant that preserves canonical unknown placeholders for linking.
+
+Curated Layer
+
+curated/job_postings
+Deduplicated job postings using natural keys, validated and analytics-ready.
+
+curated/job_postings_skills_stage
+Deduplicated job–skill relationships suitable for skill-based analysis.
+
+curated/skills
+Canonical list of unique skills extracted from job postings.
+
+curated/job_title
+Canonical set of job titles derived from cleaned titles.
+
+curated/job_type
+Canonical job types (e.g. full-time, part-time).
+
+curated/location
+Canonical list of job locations.
+
+curated/job_level
+Canonical job seniority levels.
+
+curated/company / curated/company_w_unknown
+Canonical company dimension and a variant preserving job-level linking.
+
+
