@@ -172,16 +172,16 @@ Required variables include:
 
 ## Known Limitations & Assumptions
 
-- **Batch pipeline (not real-time):** The workflow is triggered manually in Airflow and processes data in batch using the execution date (`run_date`).
+- **Batch pipeline (not real-time):** The workflow is triggered manually in Airflow and processes data in batch using the execution date (_run_date_).
 
 - **Raw layer is file-based ingestion:** Source CSVs are assumed to exist on the local filesystem (e.g. a Kaggle download). This project does not include automated dataset retrieval from Kaggle/API.
 
-- **Idempotency scope:** Cleaned/curated datasets are designed to be idempotent per `run_date` partition (reruns rebuild that partition). The raw layer is treated as a landing zone and may contain multiple outputs if the same `run_date` is re-ingested.
+- **Idempotency scope:** Cleaned/curated datasets are designed to be idempotent per _run_date_ partition (reruns rebuild that partition). The raw layer is treated as a landing zone and may contain multiple outputs if the same _run_date_ is re-ingested.
 
-- **Natural keys instead of surrogate IDs:** Tables rely on natural keys (e.g. `job_link`) for uniqueness rather than warehouse-style surrogate keys. This is sufficient for Athena-based analytics but is not a full dimensional warehouse design.
+- **Natural keys instead of surrogate IDs:** Tables rely on natural keys (e.g. _job_link_) for uniqueness rather than warehouse-style surrogate keys. This is sufficient for Athena-based analytics but is not a full dimensional warehouse design.
 
 - **In-memory global deduplication:** Cross-file deduplication uses in-memory Python sets for simplicity. This is appropriate for this project’s scale, but very large cardinalities would require a distributed approach (e.g. Spark) or a database-backed strategy.
 
-- **Canonical “unknown” categories:** Placeholder values are normalised to NULL and then mapped to canonical labels (e.g. `unknown_company`, `unknown_location`) where stable join keys are required for analytics.
+- **Canonical “unknown” categories:** Placeholder values are normalised to NULL and then mapped to canonical labels (e.g. _unknown_company_, _unknown_location_) where stable join keys are required for analytics.
 
-- **Athena partitions must match S3 layout:** Athena tables assume the S3 prefixes follow the `.../run_date=YYYY-MM-DD/` convention. If prefixes change, the DDL/partition SQL must be updated accordingly.
+- **Athena partitions must match S3 layout:** Athena tables assume the S3 prefixes follow the _.../run_date=YYYY-MM-DD/_ convention. If prefixes change, the Data Definition Language(DDL)/partition SQL must be updated accordingly.
