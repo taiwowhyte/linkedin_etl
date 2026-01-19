@@ -30,3 +30,46 @@ The goal of this project was to gain hands-on experience designing a complete, p
 **Data Formats**
 - CSV (raw ingestion)
 - Parquet (cleaned and curated layers)
+
+
+---
+
+
+## Pipeline Architecture
+
+            +----------------------+
+            |   Kaggle CSV files   |
+            |   (local download)   |
+            +----------+-----------+
+                       |
+                       v
+        +-----------------------------------+
+        | RAW LAYER (S3, Parquet)           |
+        | s3://.../raw/run_date=YYYY-MM-DD/ |
+        +------------------+----------------+
+                           |
+                           v
+        +--------------------------------------+
+        | CLEANED LAYER (S3, Parquet)           |
+        | - text normalisation                  |
+        | - placeholder -> NULL standardisation |
+        | s3://.../cleaned/<table>/run_date=... |
+        +------------------+-------------------+
+                           |
+                           v
+        +--------------------------------------+
+        | CURATED LAYER (S3, Parquet)           |
+        | - dedup using natural keys            |
+        | - validation checks                   |
+        | - idempotent reruns (partition rebuild)|
+        | s3://.../curated/<table>/run_date=... |
+        +------------------+-------------------+
+                           |
+                           v
+        +--------------------------------------+
+        | ATHENA (SQL)                          |
+        | - CREATE EXTERNAL TABLE               |
+        | - ALTER TABLE ADD PARTITION           |
+        +--------------------------------------+
+
+Orchestrated by: Apache Airflow
