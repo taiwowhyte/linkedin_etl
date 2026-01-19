@@ -69,17 +69,21 @@ Airflow orchestrates execution and ensures transforms complete before Athena par
 
 ---
 
+##Tables Produced
+
+The pipeline produces a set of cleaned and curated datasets stored as partitioned Parquet files in Amazon S3 and exposed as external tables in Athena.
+
 Tables Produced
 
 The pipeline produces a set of cleaned and curated datasets stored as partitioned Parquet files in Amazon S3 and exposed as external tables in Athena.
 
-Raw Layer
+**Raw Layer**
 
 raw/job_postings
 Raw ingestion of CSV data converted to Parquet and partitioned by run_date.
-Acts as the immutable landing layer for downstream transforms.
+Acts as the base landing layer for downstream transforms.
 
-Cleaned Layer
+**Cleaned Layer**
 
 cleaned/job_postings_staging
 Normalised job posting records with standardised text fields and basic cleaning applied.
@@ -99,7 +103,7 @@ Standardised job locations with consistent handling of unknown values.
 cleaned/company / cleaned/company_w_unknown
 Cleaned company names, including a variant that preserves canonical unknown placeholders for linking.
 
-Curated Layer
+**Curated Layer**
 
 curated/job_postings
 Deduplicated job postings using natural keys, validated and analytics-ready.
@@ -114,7 +118,7 @@ curated/job_title
 Canonical set of job titles derived from cleaned titles.
 
 curated/job_type
-Canonical job types (e.g. full-time, part-time).
+Canonical list of job types.
 
 curated/location
 Canonical list of job locations.
@@ -123,6 +127,4 @@ curated/job_level
 Canonical job seniority levels.
 
 curated/company / curated/company_w_unknown
-Canonical company dimension and a variant preserving job-level linking.
-
-
+Canonical company dimension and a variant preserving the company name set on the job posting.
