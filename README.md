@@ -37,18 +37,18 @@ The goal of this project was to gain hands-on experience designing a complete, p
 ## Pipeline Architecture
 
 Raw CSV files (Kaggle download, local filesystem)
-        ↓
+        >
 S3 Raw Layer (Parquet, run_date partitioned)
-        ↓
+        >
 S3 Cleaned Layer
   - text normalisation
   - placeholder → NULL standardisation
-        ↓
+        >
 S3 Curated Layer
   - natural key deduplication
   - validation (schema, nulls, varchar limits)
   - idempotent reruns per run_date
-        ↓
+        >
 Athena External Tables
   - CREATE EXTERNAL TABLE
   - ADD PARTITION (run_date)
