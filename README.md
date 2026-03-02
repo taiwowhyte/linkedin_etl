@@ -85,7 +85,7 @@ Acts as the base landing layer for downstream transforms.
 
 **Cleaned Layer**
 
-cleaned/job_postings_staging
+cleaned/job_postings_staging /n
 Normalised job posting records with standardised text fields and basic cleaning applied.
 
 cleaned/job_postings_skills_staging
