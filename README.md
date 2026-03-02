@@ -58,7 +58,7 @@ Orchestrated by: Apache Airflow
 
 Key design notes:
 
-The pipeline follows a layered data lake design (raw → cleaned → curated).
+The pipeline follows a layered data lake design (raw → cleaned → curated) using Medallion Architecture.
 
 All datasets are partitioned by run_date to support reproducibility and efficient querying.
 
