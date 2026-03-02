@@ -88,45 +88,45 @@ Acts as the base landing layer for downstream transforms.
 cleaned/job_postings_staging\
 Normalised job posting records with standardised text fields and basic cleaning applied.
 
-cleaned/job_postings_skills_staging
+cleaned/job_postings_skills_staging\
 Exploded job skills (one skill per row per job) for easier downstream deduplication.
 
-cleaned/search_context
+cleaned/search_context\
 Standardised text fields used for grouping and search-based analytics.
 
-cleaned/job_title_staging
+cleaned/job_title_staging\
 Cleaned job titles with canonicalisation logic applied.
 
-cleaned/location
+cleaned/location\
 Standardised job locations with consistent handling of unknown values.
 
-cleaned/company / cleaned/company_w_unknown
+cleaned/company / cleaned/company_w_unknown\
 Cleaned company names, including a variant that preserves canonical unknown placeholders for linking.
 
 **Curated Layer**
 
-curated/job_postings
+curated/job_postings\
 Deduplicated job postings using natural keys, validated and analytics-ready.
 
-curated/job_postings_skills_stage
+curated/job_postings_skills_stage\
 Deduplicated job–skill relationships suitable for skill-based analysis.
 
-curated/skills
+curated/skills\
 Canonical list of unique skills extracted from job postings.
 
-curated/job_title
+curated/job_title\
 Canonical set of job titles derived from cleaned titles.
 
-curated/job_type
+curated/job_type\
 Canonical list of job types.
 
-curated/location
+curated/location\
 Canonical list of job locations.
 
-curated/job_level
+curated/job_level\
 Canonical job seniority levels.
 
-curated/company / curated/company_w_unknown
+curated/company / curated/company_w_unknown\
 Canonical company dimension and a variant preserving the company name set on the job posting.
 
 Notes
